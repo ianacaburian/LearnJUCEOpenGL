@@ -36,7 +36,7 @@ private:
     };
     //==============================================================================
 
-    OpenGLContext openGLContext;
+    OpenGLContext openGL_context;
     ShaderProgramSource shader_program_source;
     GLuint vertex_buff_ID, index_buff_ID, shader_prog_ID;
     GLint uniform_loc;
@@ -56,8 +56,8 @@ private:
         0, 1, 2,
         2, 3, 0
     };
-    static ShaderProgramSource parseShaders();
-    static GLuint createShader(const GLenum type, const GLchar* source, const GLint source_length);
-    void loadShaders(const ShaderProgramSource& source);
+    static ShaderProgramSource parse_shaders();
+    static GLuint create_shader(const GLenum type, const GLchar* source, const GLint source_length);
+    void load_shaders(const ShaderProgramSource& source);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

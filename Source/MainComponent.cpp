@@ -10,19 +10,19 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
-    shader_program_source = parseShaders();
-    openGLContext.setOpenGLVersionRequired(juce::OpenGLContext::openGL3_2);
-    openGLContext.setRenderer(this);
-    openGLContext.attachTo(*this);
-    openGLContext.setContinuousRepainting(true);
+    shader_program_source = parse_shaders();
+    openGL_context.setOpenGLVersionRequired(juce::OpenGLContext::openGL3_2);
+    openGL_context.setRenderer(this);
+    openGL_context.attachTo(*this);
+    openGL_context.setContinuousRepainting(true);
     setSize (800, 600);
 }
 
 MainComponent::~MainComponent()
 {
-    openGLContext.detach();
+    openGL_context.detach();
 }
-MainComponent::ShaderProgramSource MainComponent::parseShaders()
+MainComponent::ShaderProgramSource MainComponent::parse_shaders()
 {
     auto shader_folder = File::getCurrentWorkingDirectory();
     while (!shader_folder.isRoot()) {
@@ -40,7 +40,7 @@ MainComponent::ShaderProgramSource MainComponent::parseShaders()
     const auto fragment_file = shader_folder.getChildFile("Frag.frag");
     return { vertex_file.loadFileAsString(), fragment_file.loadFileAsString() };
 }
-GLuint MainComponent::createShader(const GLenum type, const GLchar* source, const GLint source_length)
+GLuint MainComponent::create_shader(const GLenum type, const GLchar* source, const GLint source_length)
 {
     const auto shID = GL::glCreateShader(type);
     
@@ -58,11 +58,11 @@ GLuint MainComponent::createShader(const GLenum type, const GLchar* source, cons
     }
     return shID;
 }
-void MainComponent::loadShaders(const ShaderProgramSource& source)
+void MainComponent::load_shaders(const ShaderProgramSource& source)
 {
-    const auto vxID = createShader(GL_VERTEX_SHADER, source.VertexSource.getCharPointer(),
+    const auto vxID = create_shader(GL_VERTEX_SHADER, source.VertexSource.getCharPointer(),
                                    sizeof(char) * source.VertexSource.length());
-    const auto fsID = createShader(GL_FRAGMENT_SHADER, source.FragmentSource.getCharPointer(),
+    const auto fsID = create_shader(GL_FRAGMENT_SHADER, source.FragmentSource.getCharPointer(),
                                    sizeof(char) * source.FragmentSource.length());
     shader_prog_ID = GL::glCreateProgram();
     GL::glAttachShader(shader_prog_ID, vxID);
@@ -84,7 +84,7 @@ void MainComponent::loadShaders(const ShaderProgramSource& source)
 
 void MainComponent::newOpenGLContextCreated()
 {
-    loadShaders(shader_program_source);
+    load_shaders(shader_program_source);
     uniform_loc = GL::glGetUniformLocation(shader_prog_ID, "distance");
     
     GL::glGenBuffers(num_buffers_to_generate, &vertex_buff_ID);
