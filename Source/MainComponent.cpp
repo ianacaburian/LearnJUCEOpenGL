@@ -31,7 +31,9 @@ void MainComponent::newOpenGLContextCreated()
     shader_prog_ID = create_program(shader_program_source);
     uf_distance = GL::glGetUniformLocation(shader_prog_ID, "distance");
     uf_resolution = GL::glGetUniformLocation(shader_prog_ID, "resolution");
-    
+    GL::glUseProgram(shader_prog_ID);
+    GL::glUniform2f(uf_resolution, screen_resolution.x, screen_resolution.y);
+
     GL::glGenBuffers(1, &vertex_buff_ID);
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
     GL::glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * positions_count, positions, GL_STATIC_DRAW);
@@ -45,7 +47,6 @@ void MainComponent::renderOpenGL()
     GL::glUseProgram(shader_prog_ID);
     const auto distance = std::abs(std::sin(Time::currentTimeMillis() / 1000.) * screen_resolution.y * 2);
     GL::glUniform1f(uf_distance, distance);
-    GL::glUniform2f(uf_resolution, screen_resolution.x, screen_resolution.y);
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
     GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);    
     
