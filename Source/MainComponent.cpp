@@ -20,7 +20,7 @@ MainComponent::MainComponent()
     
     init_button();
     startTimerHz(software_fps_requested);
-    setSize (800, 600);
+    setSize(screen_resolution.x, screen_resolution.y);
 }
 MainComponent::~MainComponent()
 {
@@ -29,27 +29,28 @@ MainComponent::~MainComponent()
 void MainComponent::newOpenGLContextCreated()
 {
     shader_prog_ID = create_program(shader_program_source);
-    uniform_loc = GL::glGetUniformLocation(shader_prog_ID, "distance");
+    uf_distance = GL::glGetUniformLocation(shader_prog_ID, "distance");
+    uf_resolution = GL::glGetUniformLocation(shader_prog_ID, "resolution");
     
     GL::glGenBuffers(1, &vertex_buff_ID);
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
-    GL::glBufferData(GL_ARRAY_BUFFER, positions_count * sizeof(GLfloat), positions, GL_STATIC_DRAW);
+    GL::glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * positions_count, positions, GL_STATIC_DRAW);
     
     GL::glGenBuffers(1, &index_buff_ID);
     GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);
-    GL::glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_count * sizeof(GLuint), indices, GL_STATIC_DRAW);
+    GL::glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices_count, indices, GL_STATIC_DRAW);
 }
 void MainComponent::renderOpenGL()
 {
     GL::glUseProgram(shader_prog_ID);
-    const auto distance = std::abs(std::sin(Time::currentTimeMillis() / 1000.) * 1000.);
-    GL::glUniform1f(uniform_loc, distance);
-
+    const auto distance = std::abs(std::sin(Time::currentTimeMillis() / 1000.) * screen_resolution.y * 2);
+    GL::glUniform1f(uf_distance, distance);
+    GL::glUniform2f(uf_resolution, screen_resolution.x, screen_resolution.y);
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
     GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);    
     
     GL::glVertexAttribPointer(pos_attrib_id, num_floats_per_pos_attrib, GL_FLOAT, GL_FALSE,
-                              num_floats_per_pos_attrib * sizeof(GLfloat), (const void*)0); // pointer can be determined by using c++ MACRO
+                              sizeof(GLfloat) * num_floats_per_pos_attrib, (const void*)0);     // For more that one attrib, can use a struct with a C++ macro to determine this void* offset.
     GL::glEnableVertexAttribArray(pos_attrib_id);
     
     glDrawElements(GL_TRIANGLES, indices_count, GL_UNSIGNED_INT, nullptr);
@@ -165,7 +166,7 @@ void MainComponent::time_frames()
 {
     const auto current_time = Time::currentTimeMillis();
     frame_count++;
-    if (current_time - prev_time >= 1000.0 ){
+    if (current_time - prev_time >= 1000. ){
         frame_time = 1000. / frame_count;
         DBG(String::formatted("%f ms/frame", frame_time));
         frame_count = 0;

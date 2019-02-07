@@ -40,8 +40,10 @@ private:
     // OpenGL
     OpenGLContext openGL_context;
     ShaderProgramSource shader_program_source;
+    Point<int> screen_resolution { 800, 600 };
+    
     GLuint vertex_buff_ID, index_buff_ID, shader_prog_ID;
-    GLint uniform_loc;
+    GLint uf_distance, uf_resolution;
     
     static constexpr int positions_count = 8;    
     GLfloat positions[positions_count] = {
