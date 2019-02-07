@@ -15,12 +15,13 @@ MainComponent::MainComponent()
     openGL_context.setRenderer(this);
     openGL_context.setContinuousRepainting(true);
     openGL_context.setComponentPaintingEnabled(true);
+    setPaintingIsUnclipped(true);
+    setOpaque(true);
     
     init_button();
-    startTimerHz(1000);
+    startTimerHz(software_fps_requested);
     setSize (800, 600);
 }
-
 MainComponent::~MainComponent()
 {
     openGL_context.detach();
@@ -32,30 +33,28 @@ void MainComponent::newOpenGLContextCreated()
     
     GL::glGenBuffers(1, &vertex_buff_ID);
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
-    GL::glBufferData(GL_ARRAY_BUFFER, positions_count * sizeof(float), positions, GL_STATIC_DRAW);
+    GL::glBufferData(GL_ARRAY_BUFFER, positions_count * sizeof(GLfloat), positions, GL_STATIC_DRAW);
     
     GL::glGenBuffers(1, &index_buff_ID);
     GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);
-    GL::glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_count * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    GL::glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_count * sizeof(GLuint), indices, GL_STATIC_DRAW);
 }
-
 void MainComponent::renderOpenGL()
 {
     GL::glUseProgram(shader_prog_ID);
     const auto distance = std::abs(std::sin(Time::currentTimeMillis() / 1000.) * 1000.);
-    glUniform1f(uniform_loc, distance);
+    GL::glUniform1f(uniform_loc, distance);
 
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
     GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);    
     
     GL::glVertexAttribPointer(pos_attrib_id, num_floats_per_pos_attrib, GL_FLOAT, GL_FALSE,
-                              num_floats_per_pos_attrib * sizeof(float), (const void*)0); // pointer can be determined by using c++ MACRO
+                              num_floats_per_pos_attrib * sizeof(GLfloat), (const void*)0); // pointer can be determined by using c++ MACRO
     GL::glEnableVertexAttribArray(pos_attrib_id);
     
     glDrawElements(GL_TRIANGLES, indices_count, GL_UNSIGNED_INT, nullptr);
     time_frames();
 }
-
 void MainComponent::openGLContextClosing()
 {
     GL::glDeleteProgram(shader_prog_ID);
@@ -120,9 +119,9 @@ GLuint MainComponent::create_shader(const GLenum type, const GLchar* source, con
 GLuint MainComponent::create_program(const ShaderProgramSource& source)
 {
     const auto vxID = create_shader(GL_VERTEX_SHADER, source.VertexSource.getCharPointer(),
-                                    sizeof(char) * source.VertexSource.length());
+                                    sizeof(GLchar) * source.VertexSource.length());
     const auto fsID = create_shader(GL_FRAGMENT_SHADER, source.FragmentSource.getCharPointer(),
-                                    sizeof(char) * source.FragmentSource.length());
+                                    sizeof(GLchar) * source.FragmentSource.length());
     const auto spID = GL::glCreateProgram();
     GL::glAttachShader(spID, vxID);
     GL::glAttachShader(spID, fsID);
@@ -158,7 +157,7 @@ void MainComponent::init_button()
         }
         else {
             openGL_context.detach();
-            startTimerHz(1000); // Try to max out repaint speed.
+            startTimerHz(software_fps_requested);
         }
     };
 }
@@ -166,8 +165,7 @@ void MainComponent::time_frames()
 {
     const auto current_time = Time::currentTimeMillis();
     frame_count++;
-    if (current_time - prev_time >= 1000.0 ){ // If last prinf() was more than 1 sec ago
-        // printf and reset timer
+    if (current_time - prev_time >= 1000.0 ){
         frame_time = 1000. / frame_count;
         DBG(String::formatted("%f ms/frame", frame_time));
         frame_count = 0;

@@ -62,7 +62,7 @@ private:
     // JUCE Benchmark
     TextButton openGL_button{ "OpenGL" };
     double prev_time{}, frame_time{};
-    int frame_count{};
+    int frame_count{}, software_fps_requested = 200; // Try to max out repaint speed.
     
     //==============================================================================
 
