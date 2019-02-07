@@ -42,7 +42,7 @@ private:
     ShaderProgramSource shader_program_source;
     Point<int> screen_resolution { 800, 600 };
     
-    GLuint vertex_buff_ID, index_buff_ID, shader_prog_ID;
+    GLuint vertex_arr_ID, vertex_buff_ID, index_buff_ID, shader_prog_ID;
     GLint uf_distance, uf_resolution;
     
     static constexpr int positions_count = 8;    
@@ -52,16 +52,16 @@ private:
          1.0f,  1.0f,
         -1.0f,  1.0f
     };
-    static constexpr int indices_count = 6;
-    GLuint indices[indices_count] = {
+    static constexpr int elements_count = 6;
+    GLuint elements[elements_count] = {
         0, 1, 2,
-        2, 3, 0
+        0, 2, 3
     };
     // "Position" vertex attribute parameters
     static constexpr int pos_attrib_id = 0;
     static constexpr int num_floats_per_pos_attrib = 2;
 
-    // JUCE Benchmark
+    // Benchmark-only
     TextButton openGL_button{ "OpenGL" };
     double prev_time{}, frame_time{};
     int frame_count{}, software_fps_requested = 200; // Try to max out repaint speed.
