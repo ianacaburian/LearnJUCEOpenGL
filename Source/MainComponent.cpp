@@ -52,8 +52,8 @@ void MainComponent::newOpenGLContextCreated()
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
     GL::glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * positions_count, positions, GL_STATIC_DRAW);
     
-    // Specify the memory layout of the currently bound vertex buffer object.
-    // The currently instantiated vertex array object will use specification for each draw call.
+    // Specify the attribute layout of the currently bound vertex buffer object (there's only one attribute - position).
+    // The currently instantiated vertex array object will use this specification for each draw call.
     GL::glEnableVertexAttribArray(pos_attrib_id);
     GL::glVertexAttribPointer(pos_attrib_id, num_floats_per_pos_attrib, GL_FLOAT, GL_FALSE,
                               sizeof(GLfloat) * num_floats_per_pos_attrib, (const void*)0);     // For more that one attrib, can use a struct with a C++ macro to determine this void* offset.

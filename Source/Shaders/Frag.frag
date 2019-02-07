@@ -1,4 +1,6 @@
-#version 330 core
+//#version 330 core
+// On macOS, only shader version 150 works, 330 isn’t supported
+#version 150
 
 uniform float distance;
 uniform vec2 resolution;
