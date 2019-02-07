@@ -41,10 +41,7 @@ private:
     GLuint vertex_buff_ID, index_buff_ID, shader_prog_ID;
     GLint uniform_loc;
     
-    static constexpr int num_buffers_to_generate = 1;
-    static constexpr int positions_count = 8;
-    static constexpr int num_vertices = 4;
-    static constexpr int num_floats_per_pos_attrib = 2;
+    static constexpr int positions_count = 8;    
     GLfloat positions[positions_count] = {
         -1.0f, -1.0f,
          1.0f, -1.0f,
@@ -56,8 +53,12 @@ private:
         0, 1, 2,
         2, 3, 0
     };
+    // "Position" vertex attribute parameters
+    static constexpr int pos_attrib_id = 0;
+    static constexpr int num_floats_per_pos_attrib = 2;
+
     static ShaderProgramSource parse_shaders();
     static GLuint create_shader(const GLenum type, const GLchar* source, const GLint source_length);
-    void load_shaders(const ShaderProgramSource& source);
+    static GLuint create_program(const ShaderProgramSource& source);
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

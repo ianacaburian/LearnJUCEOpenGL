@@ -26,8 +26,7 @@ MainComponent::ShaderProgramSource MainComponent::parse_shaders()
 {
     auto shader_folder = File::getCurrentWorkingDirectory();
     while (!shader_folder.isRoot()) {
-        if (shader_folder.isDirectory()
-            && shader_folder.getFileName() == JUCEApplication::getInstance()->getApplicationName()) {
+        if (shader_folder.getFileName() == JUCEApplication::getInstance()->getApplicationName()) {
             shader_folder = shader_folder.getChildFile("Source/Shaders/");
             break;
         }
@@ -58,40 +57,40 @@ GLuint MainComponent::create_shader(const GLenum type, const GLchar* source, con
     }
     return shID;
 }
-void MainComponent::load_shaders(const ShaderProgramSource& source)
+GLuint MainComponent::create_program(const ShaderProgramSource& source)
 {
     const auto vxID = create_shader(GL_VERTEX_SHADER, source.VertexSource.getCharPointer(),
                                    sizeof(char) * source.VertexSource.length());
     const auto fsID = create_shader(GL_FRAGMENT_SHADER, source.FragmentSource.getCharPointer(),
                                    sizeof(char) * source.FragmentSource.length());
-    shader_prog_ID = GL::glCreateProgram();
-    GL::glAttachShader(shader_prog_ID, vxID);
-    GL::glAttachShader(shader_prog_ID, fsID);
-    GL::glLinkProgram(shader_prog_ID);
+    const auto spID = GL::glCreateProgram();
+    GL::glAttachShader(spID, vxID);
+    GL::glAttachShader(spID, fsID);
+    GL::glLinkProgram(spID);
     
     // check program linking success
     GLint success;
-    GL::glGetProgramiv(shader_prog_ID, GL_LINK_STATUS, &success);
+    GL::glGetProgramiv(spID, GL_LINK_STATUS, &success);
     if (!success) {
         char infoLog[512];
-        GL::glGetProgramInfoLog(shader_prog_ID, 512, nullptr, infoLog);
+        GL::glGetProgramInfoLog(spID, 512, nullptr, infoLog);
         DBG(infoLog);
         jassertfalse;
     }
     GL::glDeleteShader(vxID);
     GL::glDeleteShader(fsID);
+    return spID;
 }
-
 void MainComponent::newOpenGLContextCreated()
 {
-    load_shaders(shader_program_source);
+    shader_prog_ID = create_program(shader_program_source);
     uniform_loc = GL::glGetUniformLocation(shader_prog_ID, "distance");
     
-    GL::glGenBuffers(num_buffers_to_generate, &vertex_buff_ID);
+    GL::glGenBuffers(1, &vertex_buff_ID);
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
     GL::glBufferData(GL_ARRAY_BUFFER, positions_count * sizeof(float), positions, GL_STATIC_DRAW);
     
-    GL::glGenBuffers(num_buffers_to_generate, &index_buff_ID);
+    GL::glGenBuffers(1, &index_buff_ID);
     GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);
     GL::glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_count * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 }
@@ -99,13 +98,12 @@ void MainComponent::newOpenGLContextCreated()
 void MainComponent::renderOpenGL()
 {
     GL::glUseProgram(shader_prog_ID);
-    const auto in_distance = std::abs(std::sin(Time::currentTimeMillis() / 1000.) * 1000.);
-    glUniform1f(uniform_loc, in_distance);
+    const auto distance = std::abs(std::sin(Time::currentTimeMillis() / 1000.) * 1000.);
+    glUniform1f(uniform_loc, distance);
 
     GL::glBindBuffer(GL_ARRAY_BUFFER, vertex_buff_ID);
-    GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);
+    GL::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buff_ID);    
     
-    const auto pos_attrib_id = 0;
     GL::glVertexAttribPointer(pos_attrib_id, num_floats_per_pos_attrib, GL_FLOAT, GL_FALSE,
                               num_floats_per_pos_attrib * sizeof(float), (const void*)0); // pointer can be determined by using c++ MACRO
     GL::glEnableVertexAttribArray(pos_attrib_id);
