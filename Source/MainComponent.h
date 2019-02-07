@@ -14,7 +14,7 @@
     your controls and content.
 */
 using GL = juce::OpenGLExtensionFunctions;
-class MainComponent   : public Component, public OpenGLRenderer
+class MainComponent   : public Component, public OpenGLRenderer, public Timer
 {
 public:
     //==============================================================================
@@ -23,10 +23,11 @@ public:
 
     //==============================================================================
     void newOpenGLContextCreated() override;
-    
     void renderOpenGL() override;
-    
     void openGLContextClosing() override;
+    void paint(Graphics& g) override;
+    void resized() override;
+    void timerCallback() override;
     
 private:
     struct ShaderProgramSource
@@ -36,6 +37,7 @@ private:
     };
     //==============================================================================
 
+    // OpenGL
     OpenGLContext openGL_context;
     ShaderProgramSource shader_program_source;
     GLuint vertex_buff_ID, index_buff_ID, shader_prog_ID;
@@ -57,8 +59,17 @@ private:
     static constexpr int pos_attrib_id = 0;
     static constexpr int num_floats_per_pos_attrib = 2;
 
+    // JUCE Benchmark
+    TextButton openGL_button{ "OpenGL" };
+    double prev_time{}, frame_time{};
+    int frame_count{};
+    
+    //==============================================================================
+
     static ShaderProgramSource parse_shaders();
     static GLuint create_shader(const GLenum type, const GLchar* source, const GLint source_length);
     static GLuint create_program(const ShaderProgramSource& source);
+    void init_button();
+    void time_frames();
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
