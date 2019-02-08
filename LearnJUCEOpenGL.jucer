@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="elZSSY" name="LearnJUCEOpenGL" projectType="guiapp" jucerVersion="5.4.1"
+<JUCERPROJECT id="elZSSY" name="LearnJUCEOpenGL" projectType="guiapp" jucerVersion="5.4.2"
               cppLanguageStandard="17" defines="GL_SILENCE_DEPRECATION=1">
   <MAINGROUP id="nh8Tq6" name="LearnJUCEOpenGL">
     <GROUP id="{FE4AB671-DCD3-1A49-15A6-89842D0DC0EE}" name="Source">

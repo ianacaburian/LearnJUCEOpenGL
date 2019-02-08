@@ -16,7 +16,6 @@ MainComponent::MainComponent()
     openGL_context.setContinuousRepainting(true);
     
     // Benchmarking-only
-    openGL_context.setComponentPaintingEnabled(true);
     setPaintingIsUnclipped(true);
     setOpaque(true);
     init_button();
